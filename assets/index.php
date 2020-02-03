@@ -46,14 +46,14 @@ class LexicalAnalyzer
         $this->lexicalAnalyzerExecute();
         $this->tokenTypeBreakDownExecute();
 
-        var_dump($this->now_char_pos_i);
-        var_dump($this->max_char_pos_i);
-        var_dump($this->reserved_encryption_word);
-        var_dump($this->string_to_lecical_analyze);
-        var_dump($this->temp_analyzed_tokens);
-        var_dump($this->analyzed_tokens);
-        var_dump($this->reserved_encryption_word);
-        var_dump($this->reserved_encryption_word_len);
+        // var_dump($this->now_char_pos_i);
+        // var_dump($this->max_char_pos_i);
+        // var_dump($this->reserved_encryption_word);
+        // var_dump($this->string_to_lecical_analyze);
+        // var_dump($this->temp_analyzed_tokens);
+        // var_dump($this->analyzed_tokens);
+        // var_dump($this->reserved_encryption_word);
+        // var_dump($this->reserved_encryption_word_len);
     }
     function getChar($char_pos_i) {
         $is_out_of_range = $this->now_char_pos_i > $this->max_char_pos_i;
@@ -121,9 +121,9 @@ class LexicalAnalyzer
             $is_token_type_next     = $next_token_type === $this::TOKEN_TYPE_ENCRYPTION;
             $is_token_type_while    = $is_token_type_prev && $is_token_type_next;
             if ($is_token_type_while) {
-                var_dump($is_token_type_while);
-                var_dump($is_token_type_prev);
-                var_dump($is_token_type_next);
+                // var_dump($is_token_type_while);
+                // var_dump($is_token_type_prev);
+                // var_dump($is_token_type_next);
                 // var_dump($prev_token_type);
                 // var_dump($next_token_type);
                 return $this::TOKEN_TYPE_WHILE_ENCRYPTION;
@@ -139,11 +139,10 @@ class LexicalAnalyzer
         }
     }
     function lexicalAnalyzerExecute() {
-        $is_tokenEncryption_full = $this->tokenEncryption();
-        if ($is_tokenEncryption_full) continue;
-        $this->tokenNormal();
-        if ($this->now_char_pos_i <= $this->max_char_pos_i) {
-            $this->lexicalAnalyzerExecute();
+        while($this->now_char_pos_i <= $this->max_char_pos_i) {
+            $is_tokenEncryption_full = $this->tokenEncryption();
+            if ($is_tokenEncryption_full) continue;
+            $this->tokenNormal();
         }
     }
     function tokenTypeBreakDownExecute() {
@@ -252,26 +251,39 @@ class TanukiEncryptionDecoder extends LexicalAnalyzer
         foreach (ENCRYPTION_TYPE_SETS as $encryption_type_set_i => $encryption_type_set) {
             $encryption_type_set_keys = array_keys($encryption_type_set);
             $encryption_type_set_key = $encryption_type_set_keys[0];
-            if( preg_match('{'.$encryption_type_set_key.'}', $string_to_lecical_analyze) ) {
+            $encryption_type_set_key_len = mb_strlen($encryption_type_set_key);
+            $last_line_string =  mb_substr($string_to_lecical_analyze, -$encryption_type_set_key_len);
+            // var_dump($encryption_type_set_key_len);
+            // var_dump($encryption_type_set_key);
+            // var_dump($last_line_string);
+            // var_dump($string_to_lecical_analyze);
+            $is_key_last_line =  strcmp($encryption_type_set_key, $last_line_string) === 0;
+            //var_dump($is_key_last_line);
+            if ($is_key_last_line) {
                 $encryption_type_set[$encryption_type_set_key] = ENCRYPTION_TYPE_SETS[$encryption_type_set_i][$encryption_type_set_key];
-                $string_to_lecical_analyze_removed_encryption_type_word = preg_replace('{'.$encryption_type_set_key.'}', "", $string_to_lecical_analyze);
+                $string_to_lecical_analyze_removed_encryption_type_word = mb_substr($string_to_lecical_analyze, 0, mb_strlen($string_to_lecical_analyze) - $encryption_type_set_key_len - 1);//改行1回分も削除しておく
                 break;
             }
+            // if( preg_match('{'.$encryption_type_set_key.'}', $string_to_lecical_analyze) ) {
+            //     $encryption_type_set[$encryption_type_set_key] = ENCRYPTION_TYPE_SETS[$encryption_type_set_i][$encryption_type_set_key];
+            //     $string_to_lecical_analyze_removed_encryption_type_word = preg_replace('{'.$encryption_type_set_key.'}', "", $string_to_lecical_analyze);
+            //     break;
+            //}
         }
 
         parent::__construct($string_to_lecical_analyze_removed_encryption_type_word, $encryption_type_set);
     }
     function getDecryptedPlaintext() {
         $plaintext = "";
-        var_dump($this->analyzed_tokens);
+        //var_dump($this->analyzed_tokens);
         for($i = 0; $i < count($this->analyzed_tokens); $i++) {
             $content = $this->analyzed_tokens[$i][$this::KEY_TOKEN_CONTENT];
             $is_token_type_encryption = $this->analyzed_tokens[$i][$this::KEY_TOKEN_TYPE] === $this::TOKEN_TYPE_ENCRYPTION;
             if ($is_token_type_encryption) {
                 $reserved_encryption_word_series = $this->reserved_encryption_word.$this->reserved_encryption_word;
-                if( preg_match('{'.$reserved_encryption_word_series.'}', $content) ){
+                if( preg_match('{^'.$reserved_encryption_word_series.'}', $content) ){
                     $plaintext = $plaintext . preg_replace(
-                            '{'.$reserved_encryption_word_series.'}',
+                            '{^'.$reserved_encryption_word_series.'}',
                             $this->reserved_encryption_word,
                             $content
                         );
@@ -289,20 +301,29 @@ require_once "util.inc.php";
 $is_server_request_post = $_SERVER["REQUEST_METHOD"] === "POST";
 $input_text             = $_POST["input_text"];
 $is_encryption          = $is_server_request_post && ($_POST["encryption"]  === "暗号化");
-$is_composite           = $is_server_request_post && ($_POST["composite"]   === "複合化");
-$encryption_type_i      = $_POST["encryption_type_set_i"];
+$is_composite           = $is_server_request_post && ($_POST["composite"]   === "復号化");
+$is_excahnge            = $is_server_request_post && ($_POST["exchange"]    === "テキスト入替");
+$encryption_type_set_i      = $_POST["encryption_type_set_i"];
 $encryption_strength_i  = $_POST["encryption_strength_i"];
 
 if ($is_encryption) {
     $input_text_word_count = mb_strlen($input_text);
-    $encryption_type_set = ENCRYPTION_TYPE_SETS[$encryption_type_i];
+    $encryption_type_set = ENCRYPTION_TYPE_SETS[$encryption_type_set_i];
     $reserved_encryption_word_appearance_rato = ENCRYPTION_STRENGTH[$encryption_strength_i];
     $tanuki_encryption = new TanukiEncryptionGenerator($input_text, $encryption_type_set, $reserved_encryption_word_appearance_rato);
-    $output_text = $tanuki_encryption->getTanukiEncryption();
-    $test = new TanukiEncryptionDecoder($input_text);
-    $output_text = $test->getDecryptedPlaintext();
+    $temp_output_text = $tanuki_encryption->getTanukiEncryption();
+    setcookie("input_text" ,$input_text, time() + 86400);
+    setcookie("temp_output_text" ,$temp_output_text, time() + 86400);
+    $output_text = $temp_output_text;
 } elseif ($is_composite) {
-
+    $decrypted_plaintext = new TanukiEncryptionDecoder($input_text);
+    $temp_output_text = $decrypted_plaintext->getDecryptedPlaintext();
+    setcookie("input_text" ,$input_text, time() + 86400);
+    setcookie("temp_output_text" ,$temp_output_text, time() + 86400);
+    $output_text = $temp_output_text;
+} elseif ($is_excahnge) {
+    $input_text = $_COOKIE["temp_output_text"];
+    $output_text = $_COKIE["input_text"];
 }
 ?>
 
@@ -311,52 +332,40 @@ if ($is_encryption) {
 <head>
     <meta charset="UTF-8">
     <title>たぬき暗号</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <h1>たぬき暗号</h1>
-    <form action="" method="POST">
-        <p>暗号の種類を選択します。</p>
-        <p>
-            <select name="encryption_type_set_i">
-                <?php if($encryption_type_set_i == 0): ?>
-                    <option value="0" selected>ふつうのたぬき</option>
-                    <option value="1">元気なたぬき</option>
-                    <option value="2">疲れたぬき</option>
-                <?php elseif($encryption_type_set_i == 1): ?>
-                    <option value="0">ふつうのたぬき</option>
-                    <option value="1" selected>元気なたぬき</option>
-                    <option value="2">疲れたぬき</option>
-                <?php elseif($encryption_type_set_i == 2): ?>
-                    <option value="0">ふつうのたぬき</option>
-                    <option value="1">元気なたぬき</option>
-                    <option value="2" selected>疲れたぬき</option>
-                <?php endif; ?>
-            </select>
-        </p>
-        <p>暗号の強度を選択します。</p>
-        <p>
-            <select name="encryption_strength_i">
-                <?php if($encryption_strength_i == 0): ?>
-                    <option value="0" selected>ふつう</option>
-                    <option value="1">つよい</option>
-                    <option value="2">すごくつよい</option>
-                <?php elseif($encryption_strength_i == 1): ?>
-                    <option value="0">ふつう</option>
-                    <option value="1" selected>つよい</option>
-                    <option value="2">すごくつよい</option>
-                <?php elseif($encryption_strength_i == 2): ?>
-                    <option value="0">ふつう</option>
-                    <option value="1">つよい</option>
-                    <option value="2" selected>すごくつよい</option>
-                <?php endif; ?>
-            </select>
-        </p>
-        <p>
-            <textarea name="input_text" cols="30" rows="10"><?= h($input_text); ?></textarea>
-            <input type="submit" name="encryption" value="暗号化">
-            <input type="submit" name="composite" value="複合化">
-            <textarea name="output_text" cols="30" rows="10"><?= h($output_text); ?></textarea>
-        </p>
-    </form>
+    <header class="header">
+        <h1 class="main_header">たぬき暗号</h1>
+    </header>
+    <main class="main">
+        <form action="" method="POST">
+            <p class="select_header">暗号の種類を選択します。</p>
+            <p>
+                <select name="encryption_type_set_i">
+                    <option class="select_option" value="0" <?= h(($encryption_type_set_i == 0)?"selected":""); ?>>ふつうのたぬき</option>
+                    <option class="select_option" value="1" <?= h(($encryption_type_set_i == 1)?"selected":""); ?>>元気なたぬき</option>
+                    <option class="select_option" value="2" <?= h(($encryption_type_set_i == 2)?"selected":""); ?>>つかれたぬき</option>
+                </select>
+            </p>
+            <p class="select_header">暗号の強度を選択します。</p>
+            <p>
+                <select name="encryption_strength_i">
+                    <option class="select_option" value="0" <?= h(($encryption_strength_i == 0)?"selected":""); ?>>ふつう</option>
+                    <option class="select_option" value="1" <?= h(($encryption_strength_i == 1)?"selected":""); ?>>つよい</option>
+                    <option class="select_option" value="2" <?= h(($encryption_strength_i == 2)?"selected":""); ?>>すごくつよい</option>
+                </select>
+            </p>
+            <div class="forms">
+                <p><textarea name="input_text" cols="30" rows="10"><?= h($input_text); ?></textarea></p>
+                <div class="buttons">
+                    <p><input type="submit" name="encryption" value="暗号化"></p>
+                    <p><input type="submit" name="composite" value="復号化"></p>
+                    <p><input type="submit" name="exchange" value="テキスト入替"></p>
+                </div>
+                <p><textarea name="output_text" cols="30" rows="10"><?= h($output_text); ?></textarea></p>
+            </div>
+        </form>
+    </main>
 </body>
 </html>

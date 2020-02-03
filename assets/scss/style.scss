@@ -40,33 +40,56 @@ a {
     }
 }
 
-
 .main_header,
-.main {
-    width: 100%;
-    margin: 0 auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.main_header {
-    padding-top: 20px;
-    padding-bottom:  20px;
-}
-
-.forms {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.select_header,
+.selects,
+.buttons,
+.textareas {
+    text-align: center;
 }
 
 .main_header {
     font-size: 48px;
+    padding: 20px;
 }
 
-.select_header,
-.select_option {
-    font-size: 18px;
+.buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
+
+// .main_header,
+// .main
+// .forms {
+//     //width: 100%;
+//     margin: 0 auto;
+//     // display: flex;
+//     // justify-content: center;
+//     // align-items: center;
+//     text-align: center;
+// }
+
+// .main_header {
+//     padding-top: 20px;
+//     padding-bottom:  20px;
+// }
+
+// // .forms {
+// //     display: flex;
+// //     justify-content: center;
+// //     align-items: center;
+// // }
+
+// .main_header {
+//     font-size: 48px;
+// }
+
+// .select_header,
+// .select,
+// .select_option,
+// .select {
+//     text-align: center;
+//     font-size: 18px;
+// }
 

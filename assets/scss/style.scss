@@ -44,7 +44,9 @@ a {
 .select_header,
 .selects,
 .buttons,
-.textareas {
+.textareas_header,
+.textareas,
+.gl_footer {
     text-align: center;
 }
 
@@ -53,43 +55,157 @@ a {
     padding: 20px;
 }
 
+.select_header {
+    font-size: 16px;
+    padding-top: 10px;
+    padding-bottom: 1px;
+}
+
+.selects {
+    font-size: 16px;
+    padding-bottom: 20px;
+}
+
+.textareas_header {
+    padding-top: 20px;
+    padding-bottom: 1px;
+    font-size: 24px;
+}
+
+.textareas {
+    font-size: 24px;
+}
+
 .buttons {
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 10px;
 }
 
-// .main_header,
-// .main
-// .forms {
-//     //width: 100%;
-//     margin: 0 auto;
-//     // display: flex;
-//     // justify-content: center;
-//     // align-items: center;
-//     text-align: center;
-// }
+.button {
+    height: 30px;
+    width: 80px;
+    margin: 0 10px;
+}
+.farce_dramas {
+    width: 400px;
+    margin: 0 auto;
+}
+.araiguma_speech_bubble {
+    position: relative;
+    background: #e0edff;
+    border-radius: 15px;
+    margin: 50px 120px 50px 20px;
+    padding: 20px 10px;
+    font-size: 16px;
+}
+.araiguma_speech_bubble:after {
+    content: "";
+    position: absolute;
+    background-image: url("../img/araiguma.jpg");
+    display: inline-block;
+    width: 100px;
+    height: 100px;
+    background-size: 300%;
+    top: 50%;
+    left: 0%;
+    transform:translate(calc(-50% - 75px),-50%);
+    background-position: 200px -30px;
+    border-radius: 50px;
+    border: 2px solid green;
+}
 
-// .main_header {
-//     padding-top: 20px;
-//     padding-bottom:  20px;
-// }
+.araiguma_speech_bubble:before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 0%;
+      border: 15px solid transparent;
+      border-right: 15px solid #e0edff;
+      transform:translate(-100%,-50%);
+}
 
-// // .forms {
-// //     display: flex;
-// //     justify-content: center;
-// //     align-items: center;
-// // }
+.kitsune_speech_bubble {
+    position: relative;
+    background: #e0edff;
+    border-radius: 15px;
+    margin: 50px 20px 50px 120px;
+    padding: 20px 10px;
+    font-size: 16px;
+}
 
-// .main_header {
-//     font-size: 48px;
-// }
+.kitsune_speech_bubble:after {
+    content: "";
+    position: absolute;
+    background-image: url("../img/kitsune.jpg");
+    display: inline-block;
+    width: 100px;
+    height: 100px;
+    background-size: 145%;
+    top: 50%;
+    left: 100%;
+    transform:translate(calc(-50% + 75px),-50%);
+    background-position: -25px 8px;
+    border-radius: 50px;
+    border: 2px solid orange;
+}
 
-// .select_header,
-// .select,
-// .select_option,
-// .select {
-//     text-align: center;
-//     font-size: 18px;
-// }
+.kitsune_speech_bubble:before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 100%;
+      margin-left: 0px;
+      border: 15px solid transparent;
+      border-left: 15px solid #e0edff;
+      transform:translate(0%,-50%);
+}
 
+
+.araiguma_shout_speech_bubble {
+    position: relative;
+    background: #e0edff;
+    border-radius: 15px;
+    margin: 50px 60px 50px 20px;
+    padding: 20px 10px;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.araiguma_shout_speech_bubble:after {
+    content: "";
+    position: absolute;
+    background-image: url("../img/araiguma_shout.jpg");
+    display: inline-block;
+    width: 100px;
+    height: 100px;
+    background-size: 150%;
+    top: 50%;
+    left: 0%;
+    transform:translate(calc(-50% - 75px),-50%);
+    background-position: -20px 0px;
+    border-radius: 50px;
+    border: 2px solid green;
+}
+
+.araiguma_shout_speech_bubble:before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0%;
+    border: 15px solid transparent;
+    border-right: 15px solid #e0edff;
+    transform:translate(-100%,-50%);
+}
+
+.marker {
+    font-size: 20px;
+    background: linear-gradient(transparent 75%, #c1e0ff 0%);
+    font-weight: bold;
+}
+
+.gl_footer {
+    font-size: 14px;
+    padding-top: 10px;
+}

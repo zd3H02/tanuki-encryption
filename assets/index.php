@@ -9,7 +9,7 @@ const ENCRYPTION_TYPE_SETS= [
 const ENCRYPTION_STRENGTH = [
     10,//%
     30,//%
-    50,//%
+    70,//%
 ];
 
 class LexicalAnalyzer
@@ -249,7 +249,7 @@ class TanukiEncryptionGenerator extends LexicalAnalyzer
 class TanukiEncryptionDecoder extends LexicalAnalyzer
 {
     function __construct($string_to_lecical_analyze) {
-        $encryption_type_set = [];
+        //$encryption_type_set = [];
         $i = 0;
         $max_i = count(ENCRYPTION_TYPE_SETS);
         foreach (ENCRYPTION_TYPE_SETS as $encryption_type_set_i => $encryption_type_set) {
@@ -259,28 +259,21 @@ class TanukiEncryptionDecoder extends LexicalAnalyzer
             $last_line_string =  mb_substr($string_to_lecical_analyze, -$encryption_type_set_key_len);
             $is_last_line_key =  strcmp($encryption_type_set_key, $last_line_string) === 0;
             if ($is_last_line_key) {
-                $encryption_type_set[$encryption_type_set_key] = ENCRYPTION_TYPE_SETS[$encryption_type_set_i][$encryption_type_set_key];
-                $string_to_lecical_analyze_removed_encryption_type_word = mb_substr($string_to_lecical_analyze, 0, mb_strlen($string_to_lecical_analyze) - $encryption_type_set_key_len - 1);//改行1回分も削除しておく
+                $selected_encryption_type_set[$encryption_type_set_key] = ENCRYPTION_TYPE_SETS[$encryption_type_set_i][$encryption_type_set_key];
+                $string_to_lecical_analyze_removed_encryption_type_word = mb_substr($string_to_lecical_analyze, 0, mb_strlen($string_to_lecical_analyze) - $encryption_type_set_key_len - 2);//改行2回分も削除しておく
                 break;
             }
             $i++;
             //下記は異常時、正常時はbreakで抜ける。
             $is_last = $i ===  $max_i;
             if ($is_last){
-                var_dump($encryption_type_set);
                 $keys = array_keys(ENCRYPTION_TYPE_SETS[0]);
                 $key = $keys[0];
-                $encryption_type_set[$key] = ENCRYPTION_TYPE_SETS[0][$key];
-                var_dump($i);
-                var_dump($max_i);
-                var_dump($keys);
-                var_dump($key);
-                var_dump($encryption_type_set);
+                $selected_encryption_type_set[$key] = ENCRYPTION_TYPE_SETS[0][$key];
+                $string_to_lecical_analyze_removed_encryption_type_word = $string_to_lecical_analyze;
             }
         }
-
-
-        parent::__construct($string_to_lecical_analyze_removed_encryption_type_word, $encryption_type_set);
+        parent::__construct($string_to_lecical_analyze_removed_encryption_type_word, $selected_encryption_type_set);
     }
     function getDecryptedPlainText() {
         $plaintext = "";
@@ -348,6 +341,28 @@ if ($is_encryption) {
         <h1 class="main_header">たぬき暗号</h1>
     </header>
     <main>
+        <div class="farce_dramas">
+            <div class="araiguma_speech_bubble">
+                <p>つかれたぬき...</p>
+            </div>
+            <div class="araiguma_speech_bubble">
+                <p>人生につかれたぬき...</p>
+            </div>
+            <div class="kitsune_speech_bubble">
+                <p>.........</p>
+            </div>
+            <div class="araiguma_speech_bubble">
+                <p>なんや？</p>
+            </div>
+            <div class="kitsune_speech_bubble">
+                <p>お前アライグマやん</p>
+            </div>
+            <div class="araiguma_shout_speech_bubble">
+                <p>アライグマだけどつかれたぬきって</p>
+                <p>言ってみたかったんやー</p>
+                <p>あと、<span class="marker">たぬき暗号</span>作ってみましたー</p>
+            </div>
+        </div>
         <form action="" method="POST">
             <p class="select_header">暗号の種類を選択します。</p>
             <p class="selects">
@@ -357,24 +372,26 @@ if ($is_encryption) {
                     <option value="2" <?= h(($encryption_type_set_i == 2)?"selected":""); ?>>つかれたぬき</option>
                 </select>
             </p>
-            <p class="select_header">暗号の強度を選択します。</p>
+            <p class="select_header">たぬきの数を選択します。</p>
             <p class="selects">
                 <select name="encryption_strength_i">
                     <option value="0" <?= h(($encryption_strength_i == 0)?"selected":""); ?>>ふつう</option>
-                    <option value="1" <?= h(($encryption_strength_i == 1)?"selected":""); ?>>つよい</option>
-                    <option value="2" <?= h(($encryption_strength_i == 2)?"selected":""); ?>>すごくつよい</option>
+                    <option value="1" <?= h(($encryption_strength_i == 1)?"selected":""); ?>>おおい</option>
+                    <option value="2" <?= h(($encryption_strength_i == 2)?"selected":""); ?>>すごくおおい</option>
                 </select>
             </p>
-            <p class="textareas">もとの文</p>
+            <p class="textareas_header">もとの文</p>
             <p class="textareas"><textarea name="plain_text" cols="70" rows="10"><?= h($input_text); ?></textarea></p>
             <div class="buttons">
-                <p><input type="submit" name="encryption" value="▽暗号化"></p>
-<!--                 <p><input type="submit" name="exchange" value="入力出力交換"></p> -->
-                <p><input type="submit" name="composite" value="復号化△"></p>
+                <p><input class="button" type="submit" name="encryption" value="▽暗号化"></p>
+                <p><input class="button" type="submit" name="composite" value="解読△"></p>
             </div>
-            <p class="textareas">暗号文</p>
+            <p class="textareas_header">暗号文</p>
             <p class="textareas"><textarea name="encryption_text" cols="70" rows="10"><?= h($output_text); ?></textarea></p>
         </form>
     </main>
+    <footer>
+        <p class="gl_footer"><small>Copyright &copy; 2020 国際たぬき暗号普及委員会. All Rights Reserved.</small></p>
+    </footer>
 </body>
 </html>

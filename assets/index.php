@@ -107,19 +107,29 @@ class LexicalAnalyzer
                 $next_token_i = $token_i + 1;
                 $prev_token_type = $this::TOKEN_TYPE_NONE;
                 $next_token_type = $this->temp_analyzed_tokens[$next_token_i][$this::KEY_TOKEN_TYPE];
+                $analyzed_prev_token_type = $this::TOKEN_TYPE_NONE;
+                $analyzed_next_token_type = $this->analyzed_tokens[$next_token_i][$this::KEY_TOKEN_TYPE];
             } elseif ($is_last_token) {
                 $prev_token_i = $token_i - 1;
                 $prev_token_type = $this->temp_analyzed_tokens[$prev_token_i][$this::KEY_TOKEN_TYPE];
                 $next_token_type = $this::TOKEN_TYPE_NONE;
+                $analyzed_prev_token_type = $this->analyzed_tokens[$prev_token_i][$this::KEY_TOKEN_TYPE];
+                $analyzed_next_token_type = $this::TOKEN_TYPE_NONE;
             } else {
                 $prev_token_i = $token_i - 1;
                 $next_token_i = $token_i + 1;
                 $prev_token_type = $this->temp_analyzed_tokens[$prev_token_i][$this::KEY_TOKEN_TYPE];
                 $next_token_type = $this->temp_analyzed_tokens[$next_token_i][$this::KEY_TOKEN_TYPE];
+                $analyzed_prev_token_type = $this->analyzed_tokens[$prev_token_i][$this::KEY_TOKEN_TYPE];
+                $analyzed_next_token_type = $this->analyzed_tokens[$next_token_i][$this::KEY_TOKEN_TYPE];
             }
-            $is_token_type_prev     = $prev_token_type === $this::TOKEN_TYPE_ENCRYPTION;
-            $is_token_type_next     = $next_token_type === $this::TOKEN_TYPE_ENCRYPTION;
-            $is_token_type_while    = $is_token_type_prev && $is_token_type_next;
+            $is_token_type_prev = $prev_token_type === $this::TOKEN_TYPE_ENCRYPTION;
+            $is_token_type_next = $next_token_type === $this::TOKEN_TYPE_ENCRYPTION;
+            $is_analyzed_token_type_prev = $analyzed_prev_token_type === $this::TOKEN_TYPE_PREV_ENCRYPTION;
+            $is_token_type_while =
+                    ($is_token_type_prev && $is_token_type_next)
+                ||  ($is_token_type_next && $is_analyzed_token_type_prev)
+                ;
             if ($is_token_type_while) {
                 return $this::TOKEN_TYPE_WHILE_ENCRYPTION;
             } elseif ($is_token_type_prev) {
@@ -240,24 +250,40 @@ class TanukiEncryptionDecoder extends LexicalAnalyzer
 {
     function __construct($string_to_lecical_analyze) {
         $encryption_type_set = [];
+        $i = 0;
+        $max_i = count(ENCRYPTION_TYPE_SETS);
         foreach (ENCRYPTION_TYPE_SETS as $encryption_type_set_i => $encryption_type_set) {
             $encryption_type_set_keys = array_keys($encryption_type_set);
             $encryption_type_set_key = $encryption_type_set_keys[0];
             $encryption_type_set_key_len = mb_strlen($encryption_type_set_key);
             $last_line_string =  mb_substr($string_to_lecical_analyze, -$encryption_type_set_key_len);
-            $is_key_last_line =  strcmp($encryption_type_set_key, $last_line_string) === 0;
-            if ($is_key_last_line) {
+            $is_last_line_key =  strcmp($encryption_type_set_key, $last_line_string) === 0;
+            if ($is_last_line_key) {
                 $encryption_type_set[$encryption_type_set_key] = ENCRYPTION_TYPE_SETS[$encryption_type_set_i][$encryption_type_set_key];
                 $string_to_lecical_analyze_removed_encryption_type_word = mb_substr($string_to_lecical_analyze, 0, mb_strlen($string_to_lecical_analyze) - $encryption_type_set_key_len - 1);//改行1回分も削除しておく
                 break;
             }
+            $i++;
+            //下記は異常時、正常時はbreakで抜ける。
+            $is_last = $i ===  $max_i;
+            if ($is_last){
+                var_dump($encryption_type_set);
+                $keys = array_keys(ENCRYPTION_TYPE_SETS[0]);
+                $key = $keys[0];
+                $encryption_type_set[$key] = ENCRYPTION_TYPE_SETS[0][$key];
+                var_dump($i);
+                var_dump($max_i);
+                var_dump($keys);
+                var_dump($key);
+                var_dump($encryption_type_set);
+            }
         }
+
 
         parent::__construct($string_to_lecical_analyze_removed_encryption_type_word, $encryption_type_set);
     }
-    function getDecryptedPlaintext() {
+    function getDecryptedPlainText() {
         $plaintext = "";
-        //var_dump($this->analyzed_tokens);
         for($i = 0; $i < count($this->analyzed_tokens); $i++) {
             $content = $this->analyzed_tokens[$i][$this::KEY_TOKEN_CONTENT];
             $is_token_type_encryption = $this->analyzed_tokens[$i][$this::KEY_TOKEN_TYPE] === $this::TOKEN_TYPE_ENCRYPTION;
@@ -281,11 +307,12 @@ class TanukiEncryptionDecoder extends LexicalAnalyzer
 
 require_once "util.inc.php";
 $is_server_request_post = $_SERVER["REQUEST_METHOD"] === "POST";
-$input_text             = $_POST["input_text"];
+$input_text             = $_POST["plain_text"];
+$output_text            = $_POST["encryption_text"];
 $is_encryption          = $is_server_request_post && (array_key_exists("encryption", $_POST));
-$is_excahnge            = $is_server_request_post && (array_key_exists("exchange", $_POST));
+//$is_excahnge            = $is_server_request_post && (array_key_exists("exchange", $_POST));
 $is_composite           = $is_server_request_post && (array_key_exists("composite", $_POST));
-$encryption_type_set_i      = $_POST["encryption_type_set_i"];
+$encryption_type_set_i  = $_POST["encryption_type_set_i"];
 $encryption_strength_i  = $_POST["encryption_strength_i"];
 
 if ($is_encryption) {
@@ -298,14 +325,14 @@ if ($is_encryption) {
     setcookie("temp_output_text" ,$temp_output_text, time() + 86400);
     $output_text = $temp_output_text;
 } elseif ($is_composite) {
-    $decrypted_plaintext = new TanukiEncryptionDecoder($input_text);
-    $temp_output_text = $decrypted_plaintext->getDecryptedPlaintext();
-    setcookie("input_text" ,$input_text, time() + 86400);
+    $decrypted_plaintext = new TanukiEncryptionDecoder($output_text);
+    $temp_input_text = $decrypted_plaintext->getDecryptedPlainText();
+    setcookie("temp_input_text" ,$input_text, time() + 86400);
     setcookie("temp_output_text" ,$temp_output_text, time() + 86400);
-    $output_text = $temp_output_text;
-} elseif ($is_excahnge) {
-    $input_text = $_COOKIE["temp_output_text"];
-    $output_text = $_COKIE["input_text"];
+    $input_text = $temp_input_text;
+// } elseif ($is_excahnge) {
+//     $input_text = $_COOKIE["temp_output_text"];
+//     $output_text = $_COKIE["input_text"];
 }
 ?>
 
@@ -338,15 +365,15 @@ if ($is_encryption) {
                     <option value="2" <?= h(($encryption_strength_i == 2)?"selected":""); ?>>すごくつよい</option>
                 </select>
             </p>
-            <p class="textareas">入力</p>
-            <p class="textareas"><textarea name="input_text" cols="70" rows="10"><?= h($input_text); ?></textarea></p>
+            <p class="textareas">もとの文</p>
+            <p class="textareas"><textarea name="plain_text" cols="70" rows="10"><?= h($input_text); ?></textarea></p>
             <div class="buttons">
                 <p><input type="submit" name="encryption" value="▽暗号化"></p>
-                <p><input type="submit" name="exchange" value="入力出力交換"></p>
-                <p><input type="submit" name="composite" value="復号化▽"></p>
+<!--                 <p><input type="submit" name="exchange" value="入力出力交換"></p> -->
+                <p><input type="submit" name="composite" value="復号化△"></p>
             </div>
-            <p class="textareas">出力</p>
-            <p class="textareas"><textarea name="output_text" cols="70" rows="10"><?= h($output_text); ?></textarea></p>
+            <p class="textareas">暗号文</p>
+            <p class="textareas"><textarea name="encryption_text" cols="70" rows="10"><?= h($output_text); ?></textarea></p>
         </form>
     </main>
 </body>

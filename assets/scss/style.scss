@@ -41,11 +41,8 @@ a {
 }
 
 .main_header,
-.select_header,
-.selects,
-.buttons,
-.textareas_header,
-.textareas,
+.farce_dramas,
+.tanuki_encryption_tool,
 .gl_footer {
     text-align: center;
 }
@@ -53,45 +50,16 @@ a {
 .main_header {
     font-size: 48px;
     padding: 20px;
+    color: whitesmoke;
+    background-color: black;
 }
 
-.select_header {
-    font-size: 16px;
-    padding-top: 10px;
-    padding-bottom: 1px;
-}
-
-.selects {
-    font-size: 16px;
-    padding-bottom: 20px;
-}
-
-.textareas_header {
-    padding-top: 20px;
-    padding-bottom: 1px;
-    font-size: 24px;
-}
-
-.textareas {
-    font-size: 24px;
-}
-
-.buttons {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 10px;
-}
-
-.button {
-    height: 30px;
-    width: 80px;
-    margin: 0 10px;
-}
 .farce_dramas {
     width: 400px;
     margin: 0 auto;
+    padding-top: 20px;
 }
+
 .araiguma_speech_bubble {
     position: relative;
     background: #e0edff;
@@ -99,7 +67,9 @@ a {
     margin: 50px 120px 50px 20px;
     padding: 20px 10px;
     font-size: 16px;
+    text-align: left;
 }
+
 .araiguma_speech_bubble:after {
     content: "";
     position: absolute;
@@ -133,6 +103,7 @@ a {
     margin: 50px 20px 50px 120px;
     padding: 20px 10px;
     font-size: 16px;
+    text-align: left;
 }
 
 .kitsune_speech_bubble:after {
@@ -171,6 +142,7 @@ a {
     padding: 20px 10px;
     font-size: 16px;
     line-height: 1.5;
+    text-align: left;
 }
 
 .araiguma_shout_speech_bubble:after {
@@ -199,13 +171,97 @@ a {
     transform:translate(-100%,-50%);
 }
 
+.link {
+    color: blue;
+    font-size: 11px;
+}
+
+.link:hover {
+    opacity: 0.5;
+}
+
 .marker {
     font-size: 20px;
     background: linear-gradient(transparent 75%, #c1e0ff 0%);
     font-weight: bold;
 }
 
-.gl_footer {
-    font-size: 14px;
+.tanuki_encryption_tool {
+    margin-top: 100px;
+}
+
+.tanuki_encryption_tool_header,
+.tanuki_encryption_tool_content {
+    margin: 0 auto;
+    //width: 1000px;
+    padding: 20px;
+    border: 1px solid black;
+
+
+}
+
+.tanuki_encryption_tool_header {
+    color: whitesmoke;
+    background-color: black;
+    border-top-right-radius: 20px;
+    border-top-left-radius:  20px;
+    line-height: 2;
+    font-size: 24px;
+}
+
+.tanuki_encryption_tool_content {
+    padding: 20px;
+    border-bottom-right-radius: 20px;
+    border-bottom-left-radius:  20px;
+}
+
+.select_header {
+    font-size: 20px;
     padding-top: 10px;
+    padding-bottom: 1px;
+}
+
+.select_wrap {
+    padding-bottom: 20px;
+}
+
+.select {
+    font-size: 16px;
+    border-radius: 5px;
+    width: 200px;
+}
+
+.textarea_header {
+    padding-top: 20px;
+    padding-bottom: 1px;
+    font-size: 20px;
+}
+
+.textarea {
+    font-size: 16px;
+    border-radius:  5px;
+    line-height:1.2;
+}
+
+.button_wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+}
+
+.button {
+    height: 30px;
+    width: 80px;
+    margin: 0 10px;
+    font-size: 16px;
+    //border-radius: 2px;
+}
+
+.gl_footer {
+    margin-top: 20px;
+    padding: 10px;
+    font-size: 14px;
+    color: whitesmoke;
+    background-color: black;
 }

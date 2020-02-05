@@ -303,7 +303,6 @@ $is_server_request_post = $_SERVER["REQUEST_METHOD"] === "POST";
 $input_text             = $_POST["plain_text"];
 $output_text            = $_POST["encryption_text"];
 $is_encryption          = $is_server_request_post && (array_key_exists("encryption", $_POST));
-//$is_excahnge            = $is_server_request_post && (array_key_exists("exchange", $_POST));
 $is_composite           = $is_server_request_post && (array_key_exists("composite", $_POST));
 $encryption_type_set_i  = $_POST["encryption_type_set_i"];
 $encryption_strength_i  = $_POST["encryption_strength_i"];
@@ -323,9 +322,6 @@ if ($is_encryption) {
     setcookie("temp_input_text" ,$input_text, time() + 86400);
     setcookie("temp_output_text" ,$temp_output_text, time() + 86400);
     $input_text = $temp_input_text;
-// } elseif ($is_excahnge) {
-//     $input_text = $_COOKIE["temp_output_text"];
-//     $output_text = $_COKIE["input_text"];
 }
 ?>
 
@@ -333,15 +329,20 @@ if ($is_encryption) {
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=1024, initial-scale=1.0">
     <title>たぬき暗号</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sanitize.css/2.0.0/sanitize.min.css">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.2/css/font-awesome.min.css">
 </head>
 <body>
     <header>
         <h1 class="main_header">たぬき暗号</h1>
     </header>
     <main>
-        <div class="farce_dramas">
+        <section class="farce_dramas">
+            <!-- <h1 class="section_header">茶番劇</h1> -->
+            <a href="#tanuki_encryption_tool"><p class="link">茶番はいい。はやくたぬき暗号を作らせろ。という方はこちらへ</p></a>
             <div class="araiguma_speech_bubble">
                 <p>つかれたぬき...</p>
             </div>
@@ -357,41 +358,52 @@ if ($is_encryption) {
             <div class="kitsune_speech_bubble">
                 <p>お前アライグマやん</p>
             </div>
+            <div class="araiguma_speech_bubble">
+                <p>.........</p>
+            </div>
             <div class="araiguma_shout_speech_bubble">
                 <p>アライグマだけどつかれたぬきって</p>
                 <p>言ってみたかったんやー</p>
                 <p>あと、<span class="marker">たぬき暗号</span>作ってみましたー</p>
             </div>
-        </div>
-        <form action="" method="POST">
-            <p class="select_header">暗号の種類を選択します。</p>
-            <p class="selects">
-                <select class="select" name="encryption_type_set_i">
-                    <option value="0" <?= h(($encryption_type_set_i == 0)?"selected":""); ?>>ふつうのたぬき</option>
-                    <option value="1" <?= h(($encryption_type_set_i == 1)?"selected":""); ?>>元気なたぬき</option>
-                    <option value="2" <?= h(($encryption_type_set_i == 2)?"selected":""); ?>>つかれたぬき</option>
-                </select>
-            </p>
-            <p class="select_header">たぬきの数を選択します。</p>
-            <p class="selects">
-                <select name="encryption_strength_i">
-                    <option value="0" <?= h(($encryption_strength_i == 0)?"selected":""); ?>>ふつう</option>
-                    <option value="1" <?= h(($encryption_strength_i == 1)?"selected":""); ?>>おおい</option>
-                    <option value="2" <?= h(($encryption_strength_i == 2)?"selected":""); ?>>すごくおおい</option>
-                </select>
-            </p>
-            <p class="textareas_header">もとの文</p>
-            <p class="textareas"><textarea name="plain_text" cols="70" rows="10"><?= h($input_text); ?></textarea></p>
-            <div class="buttons">
-                <p><input class="button" type="submit" name="encryption" value="▽暗号化"></p>
-                <p><input class="button" type="submit" name="composite" value="解読△"></p>
+        </section>
+        <section class="tanuki_encryption_tool" id="tanuki_encryption_tool">
+            <h1 class="tanuki_encryption_tool_header">たぬき暗号生成ツール</h1>
+            <div class="tanuki_encryption_tool_content">
+            <form action="" method="POST">
+                <p class="select_header">暗号の種類</p>
+                <p class="select_wrap">
+                    <select class="select" name="encryption_type_set_i">
+                        <option class="select_option" value="0" <?= h(($encryption_type_set_i == 0)?"selected":""); ?>>ふつうのたぬき</option>
+                        <option class="select_option" value="1" <?= h(($encryption_type_set_i == 1)?"selected":""); ?>>元気なたぬき</option>
+                        <option class="select_option" value="2" <?= h(($encryption_type_set_i == 2)?"selected":""); ?>>つかれたぬき</option>
+                    </select>
+                </p>
+                <p class="select_header">たぬきの数</p>
+                <p class="select_wrap">
+                    <select class="select" name="encryption_strength_i">
+                        <option class="select_option" value="0" <?= h(($encryption_strength_i == 0)?"selected":""); ?>>ふつう</option>
+                        <option class="select_option" value="1" <?= h(($encryption_strength_i == 1)?"selected":""); ?>>おおい</option>
+                        <option class="select_option" value="2" <?= h(($encryption_strength_i == 2)?"selected":""); ?>>すごくおおい</option>
+                    </select>
+                </p>
+                <p class="textarea_header">もとの文</p>
+                <p class="textarea_wrap"><textarea class="textarea" name="plain_text" cols="70" rows="10"><?= h($input_text); ?></textarea></p>
+                <div class="button_wrap">
+                    <p><input class="button" type="submit" name="encryption" value="▼暗号化"></p>
+                    <p><input class="button" type="submit" name="composite" value="解読▲"></p>
+                </div>
+                <p class="textarea_header">暗号文</p>
+                <p class="textarea_wrap"><textarea class="textarea" name="encryption_text" cols="70" rows="10"><?= h($output_text); ?></textarea></p>
+            </form>
             </div>
-            <p class="textareas_header">暗号文</p>
-            <p class="textareas"><textarea name="encryption_text" cols="70" rows="10"><?= h($output_text); ?></textarea></p>
-        </form>
+        </section>
     </main>
     <footer>
         <p class="gl_footer"><small>Copyright &copy; 2020 国際たぬき暗号普及委員会. All Rights Reserved.</small></p>
     </footer>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/script.js"></script>
 </body>
 </html>
